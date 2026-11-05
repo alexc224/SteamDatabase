@@ -10,64 +10,61 @@ Users should be able to look at the steam database which will be seperated betwe
 2) Games will be tied to a table with unique ids where they store name, price that doesn't go below zero and is in the format for usd, publisher and different types of ratings (total,total positive, total negative and rating score)
 3) Dlcs will be the same as the games, having a single unique dlc_id and being tied to a game_id
 4) for the libraries that are tied to users, it will need multiple user_id and game/dlc ids. The primary key will be a unique combination of the user_id and game/dlc id. This will be in two different tables (1 for games and 1 for dlc)
-## Diagram
-```erDiagram
+## 
+```mermaid
+erDiagram
     users {
-        INTEGER user_id PK "GENERATED ALWAYS AS IDENTITY"
-        BIGINT steam_id UK "NOT NULL"
-        VARCHAR email UK "NOT NULL"
-        VARCHAR password_hash "NOT NULL"
-        DATE account_join_date "DEFAULT CURRENT_DATE"
+        INTEGER user_id
+        BIGINT steam_id
+        VARCHAR email
+        VARCHAR password_hash
+        DATE account_join_date
     }
 
     games {
-        INTEGER game_id PK "GENERATED ALWAYS AS IDENTITY"
-        VARCHAR name "NOT NULL"
-        NUMERIC price "CHECK >= 0"
+        INTEGER game_id
+        VARCHAR name
+        NUMERIC price
         VARCHAR genre
         VARCHAR rating_desc
-        INTEGER rating_total "DEFAULT 0"
-        INTEGER rating_positive "DEFAULT 0"
-        INTEGER rating_negative "DEFAULT 0"
-        NUMERIC rating_pct "DEFAULT 0"
+        INTEGER rating_total
+        INTEGER rating_positive
+        INTEGER rating_negative
+        NUMERIC rating_pct
         VARCHAR publisher
         DATE release_year
     }
 
     dlc {
-        INTEGER dlc_id PK "GENERATED ALWAYS AS IDENTITY"
-        INTEGER game_id FK "REFERENCES games(game_id) ON DELETE CASCADE"
-        VARCHAR name "NOT NULL"
-        NUMERIC price "CHECK >= 0"
+        INTEGER dlc_id
+        INTEGER game_id
+        VARCHAR name
+        NUMERIC price
         DATE release_date
         VARCHAR publisher
         VARCHAR rating_desc
-        INTEGER rating_total "DEFAULT 0"
-        INTEGER rating_positive "DEFAULT 0"
-        INTEGER rating_negative "DEFAULT 0"
-        NUMERIC rating_pct "DEFAULT 0"
+        INTEGER rating_total
+        INTEGER rating_positive
+        INTEGER rating_negative
+        NUMERIC rating_pct
     }
 
     player_library {
-        INTEGER user_id PK, FK "REFERENCES users(user_id) ON DELETE CASCADE"
-        INTEGER game_id PK, FK "REFERENCES games(game_id) ON DELETE CASCADE"
-        INTEGER game_hours "DEFAULT 0, CHECK >= 0"
+        INTEGER user_id
+        INTEGER game_id
+        INTEGER game_hours
     }
 
     dlc_library {
-        INTEGER user_id PK, FK "REFERENCES users(user_id) ON DELETE CASCADE"
-        INTEGER dlc_id PK, FK "REFERENCES dlc(dlc_id) ON DELETE CASCADE"
-        INTEGER game_id FK "REFERENCES games(game_id) ON DELETE CASCADE"
+        INTEGER user_id
+        INTEGER dlc_id
+        INTEGER game_id
     }
 
-    %% Relationships
-    users ||--o{ player_library : "owns games"
-    games ||--o{ player_library : "owned by users"
-    
-    games ||--o{ dlc : "has"
-    
-    users ||--o{ dlc_library : "owns DLC"
-    dlc ||--o{ dlc_library : "owned by users"
-    games ||--o{ dlc_library : "associated with DLC"
-
+    users ||--o{ player_library : "owns"
+    games ||--o{ player_library : "in_library"
+    games ||--o{ dlc : "has_dlc"
+    users ||--o{ dlc_library : "owns_dlc"
+    dlc ||--o{ dlc_library : "in_dlc_library"
+    games ||--o{ dlc_library : "for_game"
 ```
